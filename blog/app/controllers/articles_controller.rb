@@ -15,10 +15,14 @@ class ArticlesController < ApplicationController
 
 	end
 
+	#GET /article/:id/edit
+	def edit
+		@article = Article.find(params[:id])
+	end
+
 	#POST /article
 	def create
-		@article = Article.new(title: params[:article][:title],
-							   body: params[:article][:title])
+		@article = Article.new(article_params)
 		if @article.save
 			redirect_to @article
 		else 
@@ -26,8 +30,26 @@ class ArticlesController < ApplicationController
 		end
 	end
 
-	#put
+	#PUT /articles/:id
 	def update
-		
+		@article = Article.find(params[:id])
+		if @article.update(article_params)
+			redirect_to @article
+		else
+			render :edit
+		end
 	end
+
+	#DELETE /articles/:id
+	def destroy
+		@articles = Article.find(params[:id])
+		@articles.destroy # Destroy elimina el objeto de la base de datos
+		redirect_to articles_path
+	end
+
+	private	
+
+		def article_params
+			params.require(:article).permit(:title,:body)
+		end
 end
