@@ -1,4 +1,8 @@
 class ArticlesController < ApplicationController
+	#before_action :validate_user, except: [:show, :index]
+	before_action :authenticate_user!, except: [:show, :index]
+	before_action :set_article, except: [:index,:new, :create]
+
 	#GET  /articles
 	def index
 		@articles = Article.all
@@ -6,7 +10,7 @@ class ArticlesController < ApplicationController
 
 	#GET /articles/:id
 	def show
-		@article = Article.find(params[:id])
+		@article.update_visits_count
 	end
 
 	#GET /article/new
@@ -17,12 +21,12 @@ class ArticlesController < ApplicationController
 
 	#GET /article/:id/edit
 	def edit
-		@article = Article.find(params[:id])
+
 	end
 
 	#POST /article
 	def create
-		@article = Article.new(article_params)
+		@article = current_user.article.new(article_params)
 		if @article.save
 			redirect_to @article
 		else 
@@ -32,7 +36,6 @@ class ArticlesController < ApplicationController
 
 	#PUT /articles/:id
 	def update
-		@article = Article.find(params[:id])
 		if @article.update(article_params)
 			redirect_to @article
 		else
@@ -42,12 +45,20 @@ class ArticlesController < ApplicationController
 
 	#DELETE /articles/:id
 	def destroy
-		@articles = Article.find(params[:id])
 		@articles.destroy # Destroy elimina el objeto de la base de datos
 		redirect_to articles_path
 	end
 
 	private	
+
+		#def validate_user
+		#	redirect_to new_user_sessions_path, notice: "Necesitas iniciar sesión"
+		#end
+		
+		def set_article
+			
+		@articles = Article.find(params[:id])
+		end
 
 		def article_params
 			params.require(:article).permit(:title,:body)
